@@ -1,0 +1,359 @@
+### Test User Registration
+POST http://localhost:3000/user-api/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@test.com",
+  "password": "password123",
+  "branch": "CSE",
+  "year": 3
+}
+
+### Test User Login
+POST http://localhost:3000/user-api/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@test.com",
+  "password": "password123"
+}
+
+### Get User Profile (Replace with actual userId after registration)
+GET http://localhost:3000/user-api/profile/68dbd5e0c38dd52ae9b52071
+
+### ==================== SUBJECT APIs ====================
+
+### Create Subject - DBMS
+POST http://localhost:3000/subject-api/create
+Content-Type: application/json
+
+{
+  "name": "DBMS",
+  "fullName": "Database Management Systems",
+  "description": "Study of database design, implementation, and management",
+  "icon": "database-icon.png"
+}
+
+### Create Subject - OS
+POST http://localhost:3000/subject-api/create
+Content-Type: application/json
+
+{
+  "name": "OS",
+  "fullName": "Operating Systems",
+  "description": "Study of operating system concepts and implementation",
+  "icon": "os-icon.png"
+}
+
+### Create Subject - CN
+POST http://localhost:3000/subject-api/create
+Content-Type: application/json
+
+{
+  "name": "CN",
+  "fullName": "Computer Networks",
+  "description": "Study of network protocols and communication",
+  "icon": "network-icon.png"
+}
+
+### Create Subject - DSA
+POST http://localhost:3000/subject-api/create
+Content-Type: application/json
+
+{
+  "name": "DSA",
+  "fullName": "Data Structures and Algorithms",
+  "description": "Study of data structures and algorithmic problem solving",
+  "icon": "dsa-icon.png"
+}
+
+### Get All Subjects
+GET http://localhost:3000/subject-api/all
+
+### Get Subject by ID (Replace with actual subjectId)
+GET http://localhost:3000/subject-api/68dbd670c38dd52ae9b5207f
+
+### ==================== QUIZ APIs ====================
+
+### Create Quiz (Replace userId and subjectId with actual IDs)
+POST http://localhost:3000/quiz-api/create
+Content-Type: application/json
+
+{
+  "userId": "68dbd5e0c38dd52ae9b52071",
+  "subjectId": "68dbd670c38dd52ae9b5207f",
+  "difficulty": "Medium",
+  "totalQuestions": 5,
+  "timeLimit": 300,
+  "questions": [
+    {
+      "questionText": "What is normalization in DBMS?",
+      "options": [
+        {
+          "text": "Reducing data redundancy",
+          "isCorrect": true
+        },
+        {
+          "text": "Increasing data size",
+          "isCorrect": false
+        },
+        {
+          "text": "Adding more tables",
+          "isCorrect": false
+        },
+        {
+          "text": "Deleting records",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "Reducing data redundancy"
+    },
+    {
+      "questionText": "Which is a primary key constraint?",
+      "options": [
+        {
+          "text": "Can be null",
+          "isCorrect": false
+        },
+        {
+          "text": "Must be unique",
+          "isCorrect": true
+        },
+        {
+          "text": "Can have duplicates",
+          "isCorrect": false
+        },
+        {
+          "text": "Optional field",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "Must be unique"
+    },
+    {
+      "questionText": "What does ACID stand for?",
+      "options": [
+        {
+          "text": "Atomicity, Consistency, Isolation, Durability",
+          "isCorrect": true
+        },
+        {
+          "text": "Addition, Creation, Integration, Development",
+          "isCorrect": false
+        },
+        {
+          "text": "Access, Control, Identity, Database",
+          "isCorrect": false
+        },
+        {
+          "text": "Automatic, Consistent, Individual, Dependent",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "Atomicity, Consistency, Isolation, Durability"
+    },
+    {
+      "questionText": "Which SQL command is used to retrieve data?",
+      "options": [
+        {
+          "text": "INSERT",
+          "isCorrect": false
+        },
+        {
+          "text": "UPDATE",
+          "isCorrect": false
+        },
+        {
+          "text": "SELECT",
+          "isCorrect": true
+        },
+        {
+          "text": "DELETE",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "SELECT"
+    },
+    {
+      "questionText": "What is a foreign key?",
+      "options": [
+        {
+          "text": "A key from another table",
+          "isCorrect": true
+        },
+        {
+          "text": "A duplicate primary key",
+          "isCorrect": false
+        },
+        {
+          "text": "An encrypted key",
+          "isCorrect": false
+        },
+        {
+          "text": "A backup key",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A key from another table"
+    }
+  ]
+}
+
+### Get Quiz by ID (Replace with actual quizId)
+GET http://localhost:3000/quiz-api/QUIZ_ID_HERE
+
+### Get User's Quizzes (Replace with actual userId)
+GET http://localhost:3000/quiz-api/user/USER_ID_HERE
+
+### Mark Quiz as Completed (Replace with actual quizId)
+PUT http://localhost:3000/quiz-api/complete/QUIZ_ID_HERE
+
+### ==================== QUIZ RESULT APIs ====================
+
+### Submit Quiz Result (Replace userId and quizId with actual IDs)
+POST http://localhost:3000/quiz-result-api/submit
+Content-Type: application/json
+
+{
+  "userId": "USER_ID_HERE",
+  "quizId": "QUIZ_ID_HERE",
+  "userAnswers": [
+    {
+      "questionIndex": 0,
+      "selectedOption": "Reducing data redundancy",
+      "isCorrect": true
+    },
+    {
+      "questionIndex": 1,
+      "selectedOption": "Must be unique",
+      "isCorrect": true
+    },
+    {
+      "questionIndex": 2,
+      "selectedOption": "Atomicity, Consistency, Isolation, Durability",
+      "isCorrect": true
+    },
+    {
+      "questionIndex": 3,
+      "selectedOption": "SELECT",
+      "isCorrect": true
+    },
+    {
+      "questionIndex": 4,
+      "selectedOption": "A key from another table",
+      "isCorrect": true
+    }
+  ],
+  "score": 5,
+  "percentage": 100,
+  "timeTaken": 240,
+  "aiExplanations": [
+    {
+      "questionIndex": 0,
+      "explanation": "Normalization reduces data redundancy by organizing data into related tables. This eliminates duplicate data and ensures data consistency across the database."
+    },
+    {
+      "questionIndex": 1,
+      "explanation": "Primary key must be unique to identify each record distinctly. It cannot be null and ensures entity integrity in database tables."
+    },
+    {
+      "questionIndex": 2,
+      "explanation": "ACID properties ensure reliable database transactions. Atomicity ensures all-or-nothing execution, while other properties maintain data integrity."
+    },
+    {
+      "questionIndex": 3,
+      "explanation": "SELECT statement retrieves data from database tables. It's the most commonly used SQL command for data querying and retrieval operations."
+    },
+    {
+      "questionIndex": 4,
+      "explanation": "Foreign key establishes relationship between tables by referencing primary key of another table. It maintains referential integrity in relational databases."
+    }
+  ]
+}
+
+### Get Quiz Result by ID (Replace with actual resultId)
+GET http://localhost:3000/quiz-result-api/RESULT_ID_HERE
+
+### Get User's Quiz Results (Replace with actual userId)
+GET http://localhost:3000/quiz-result-api/user/USER_ID_HERE
+
+### ==================== DASHBOARD APIs ====================
+
+### Get User Dashboard Data (Replace with actual userId)
+GET http://localhost:3000/dashboard-api/USER_ID_HERE
+
+### Update Subject Progress (Replace with actual userId and subjectId)
+PUT http://localhost:3000/dashboard-api/update-subject/USER_ID_HERE
+Content-Type: application/json
+
+{
+  "subjectId": "SUBJECT_ID_HERE",
+  "score": 85
+}
+
+### ==================== TESTING SEQUENCE ====================
+### 1. First run: Create User (register)
+### 2. Copy the userId from response
+### 3. Test login with same credentials
+### 4. Create subjects (DBMS, OS, CN, DSA)
+### 5. Copy subjectId from responses
+### 6. Create quiz using userId and subjectId
+### 7. Copy quizId from response
+### 8. Submit quiz result using userId and quizId
+### 9. Test dashboard APIs with userId
+### 10. Test all GET endpoints
+
+### ==================== ADDITIONAL TEST DATA ====================
+
+### Create Another User for Testing
+POST http://localhost:3000/user-api/register
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@test.com",
+  "password": "password456",
+  "branch": "ECE",
+  "year": 2
+}
+
+### Test Invalid Login
+POST http://localhost:3000/user-api/login
+Content-Type: application/json
+
+{
+  "email": "invalid@test.com",
+  "password": "wrongpassword"
+}
+
+### ==================== QUICK VERIFICATION TESTS ====================
+
+### 1. Test Server Health
+GET http://localhost:3000/subject-api/all
+
+### 2. Simple User Registration Test
+POST http://localhost:3000/user-api/register
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test@example.com",
+  "password": "test123",
+  "branch": "IT",
+  "year": 1
+}
+
+### 3. Quick Subject Creation Test
+POST http://localhost:3000/subject-api/create
+Content-Type: application/json
+
+{
+  "name": "TEST",
+  "fullName": "Test Subject",
+  "description": "This is a test subject for verification",
+  "icon": "test-icon.png"
+}
