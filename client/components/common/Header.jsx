@@ -70,7 +70,7 @@ function Header() {
       animate={{ y: 0 }}
       transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-lg shadow-lg' : 'bg-white shadow-md'
+        isScrolled ? 'bg-gradient-to-r from-orange-50 via-orange-50/95 to-orange-50 backdrop-blur-lg' : 'bg-gradient-to-r from-orange-50 via-white to-orange-50'
       }`}
     >
       <div className="container mx-auto px-6 py-4">
@@ -79,7 +79,7 @@ function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <motion.div
-              className="bg-orange-500 rounded-2xl p-2.5 shadow-md group-hover:shadow-lg transition-all"
+              className="bg-orange-500 rounded-2xl p-2.5 group-hover:bg-orange-600 transition-all"
               whileHover={{ scale: 1.05, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -102,7 +102,7 @@ function Header() {
                 <UserProfile />
                 <motion.button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+                  className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -121,7 +121,7 @@ function Header() {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:from-orange-500 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg font-semibold"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:from-orange-500 hover:to-orange-600 transition-all duration-200 font-semibold"
                 >
                   Get Started
                 </Link>
@@ -158,7 +158,7 @@ function Header() {
                     <MobileNavLink to="/dashboard" icon={MdDashboard}>Dashboard</MobileNavLink>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all font-medium shadow-md"
+                      className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all font-medium"
                     >
                       <MdLogout className="text-xl" />
                       <span>Logout</span>
@@ -177,7 +177,7 @@ function Header() {
                     <Link
                       to="/register"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:from-orange-500 hover:to-orange-600 transition-all font-semibold shadow-md"
+                      className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:from-orange-500 hover:to-orange-600 transition-all font-semibold"
                     >
                       Get Started
                     </Link>
