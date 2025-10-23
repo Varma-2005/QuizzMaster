@@ -5,184 +5,198 @@ const Quiz = require('../models/quizModel');
 const Subject = require('../models/subjectModel');
 const expressAsyncHandler = require('express-async-handler');
 
-// Test Gemini API connection
+// ✅ Test Gemini API connection
 geminiApp.get('/test', expressAsyncHandler(async (req, res) => {
+  try {
     const testResult = await geminiService.generateQuiz('DBMS', 'Easy', 2);
-    
-    res.status(200).send({
-        message: 'Gemini API test successful',
-        payload: {
-            questionsGenerated: testResult.length,
-            sample: testResult[0]
-        }
+    res.status(200).json({
+      success: true,
+      message: 'Gemini API test successful',
+      payload: {
+        questionsGenerated: testResult.length,
+        sample: testResult[0],
+      },
     });
+  } catch (error) {
+    console.error('Gemini test failed:', error);
+    res.status(500).json({ success: false, message: 'Gemini API test failed', error: error.message });
+  }
 }));
 
-// Generate quiz with AI
+// ✅ Generate quiz with AI
 geminiApp.post('/generate-quiz', expressAsyncHandler(async (req, res) => {
-    const { userId, subjectId, difficulty, questionCount } = req.body;
-    
-    // Validate inputs
-    if (!userId || !subjectId || !difficulty || !questionCount) {
-        return res.status(400).send({ message: 'All fields are required' });
-    }
-    
-    if (questionCount > 24 || questionCount < 1) {
-        return res.status(400).send({ message: 'Question count must be between 1 and 24' });
-    }
-    
-    // Get subject details
-    const subjectData = await Subject.findById(subjectId);
-    
-    if (!subjectData) {
-        return res.status(404).send({ message: 'Subject not found' });
-    }
-    
-    if (!subjectData.name || !subjectData.fullName) {
-        return res.status(400).send({ 
-            message: 'Subject data is incomplete',
-            missingFields: {
-                name: !subjectData.name,
-                fullName: !subjectData.fullName
-            }
-        });
-    }
-    
-    // Generate AI questions and timer in parallel
+  const { userId, subjectId, difficulty, questionCount } = req.body;
+
+  if (!userId || !subjectId || !difficulty || !questionCount) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  if (questionCount > 24 || questionCount < 1) {
+    return res.status(400).json({ success: false, message: 'Question count must be between 1 and 24' });
+  }
+
+  const subjectData = await Subject.findById(subjectId);
+  if (!subjectData) {
+    return res.status(404).json({ success: false, message: 'Subject not found' });
+  }
+
+  if (!subjectData.name || !subjectData.fullName) {
+    return res.status(400).json({
+      success: false,
+      message: 'Subject data is incomplete',
+      missingFields: {
+        name: !subjectData.name,
+        fullName: !subjectData.fullName,
+      },
+    });
+  }
+
+  try {
     const [questions, timerData] = await Promise.all([
-        geminiService.generateQuiz(subjectData.name, difficulty, questionCount),
-        geminiService.calculateTimer(difficulty, questionCount, subjectData.name)
+      geminiService.generateQuiz(subjectData.name, difficulty, questionCount),
+      geminiService.calculateTimer(difficulty, questionCount, subjectData.name),
     ]);
-    
+
     if (!questions?.length) {
-        return res.status(500).send({ message: 'Failed to generate questions' });
+      return res.status(500).json({ success: false, message: 'Failed to generate questions' });
     }
-    
-    // Create and save quiz
+
     const savedQuiz = await new Quiz({
-        userId,
-        subjectId,
-        title: `${subjectData.fullName} - ${difficulty} Quiz`,
-        subjectName: subjectData.fullName,
-        difficulty,
-        totalQuestions: questionCount,
-        timeLimit: Math.round(timerData.totalTime || 1200),
-        questions,
-        isCompleted: false
+      userId,
+      subjectId,
+      title: `${subjectData.fullName} - ${difficulty} Quiz`,
+      subjectName: subjectData.fullName,
+      difficulty,
+      totalQuestions: questionCount,
+      timeLimit: Math.round(timerData.totalTime || 1200),
+      questions,
+      isCompleted: false,
     }).save();
-    
-    res.status(201).send({
-        message: 'AI Quiz generated successfully',
-        payload: {
-            quiz: savedQuiz,
-            timerInfo: timerData,
-            questionsGenerated: questions.length
-        }
+
+    const quizResponse = savedQuiz.toObject();
+    delete quizResponse.__v;
+
+    res.status(201).json({
+      success: true,
+      message: 'AI Quiz generated successfully',
+      payload: {
+        quiz: quizResponse,
+        timerInfo: timerData,
+        questionsGenerated: questions.length,
+      },
     });
+  } catch (error) {
+    console.error('Error generating quiz:', error);
+    res.status(500).json({ success: false, message: 'Error generating quiz', error: error.message });
+  }
 }));
 
-// Calculate timer
+// ✅ Calculate timer
 geminiApp.post('/calculate-timer', expressAsyncHandler(async (req, res) => {
-    const { difficulty, questionCount, subjectId } = req.body;
-    
-    if (!difficulty || !questionCount || !subjectId) {
-        return res.status(400).send({ message: 'All fields are required' });
-    }
-    
-    const subjectData = await Subject.findById(subjectId);
-    
-    if (!subjectData) {
-        return res.status(404).send({ message: 'Subject not found' });
-    }
-    
-    try {
-        const timerData = await geminiService.calculateTimer(difficulty, questionCount, subjectData.name);
-        
-        res.status(200).send({
-            message: 'Timer calculated by AI',
-            payload: timerData
-        });
-    } catch (error) {
-        // Fallback timer calculation
-        const baseSeconds = {
-            'Easy': questionCount * 45,
-            'Medium': questionCount * 60,
-            'Hard': questionCount * 90
-        }[difficulty] || questionCount * 60;
-        
-        const totalTimeSeconds = Math.min(Math.max(baseSeconds, 120), 1200);
-        
-        res.status(200).send({
-            message: 'Timer calculated (fallback)',
-            payload: {
-                totalTime: totalTimeSeconds,
-                timePerQuestion: Math.ceil(totalTimeSeconds / questionCount),
-                difficulty,
-                questionCount
-            }
-        });
-    }
+  const { difficulty, questionCount, subjectId } = req.body;
+
+  if (!difficulty || !questionCount || !subjectId) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  const subjectData = await Subject.findById(subjectId);
+  if (!subjectData) {
+    return res.status(404).json({ success: false, message: 'Subject not found' });
+  }
+
+  try {
+    const timerData = await geminiService.calculateTimer(difficulty, questionCount, subjectData.name);
+    res.status(200).json({ success: true, message: 'Timer calculated by AI', payload: timerData });
+  } catch (error) {
+    console.error('AI timer generation failed, using fallback:', error);
+
+    const multipliers = { Easy: 45, Medium: 60, Hard: 90 };
+    const baseSeconds = (multipliers[difficulty] || 60) * questionCount;
+    const totalTime = Math.max(120, Math.min(baseSeconds, 1200));
+
+    res.status(200).json({
+      success: true,
+      message: 'Timer calculated (fallback)',
+      payload: {
+        totalTime,
+        timePerQuestion: Math.ceil(totalTime / questionCount),
+        difficulty,
+        questionCount,
+      },
+    });
+  }
 }));
 
-// Debug subject data
+// ✅ Debug subject data (disable on production)
 geminiApp.get('/debug-subject/:id', expressAsyncHandler(async (req, res) => {
-    const subjectData = await Subject.findById(req.params.id);
-    
-    if (!subjectData) {
-        return res.status(404).send({ message: 'Subject not found' });
-    }
-    
-    res.status(200).send({
-        message: 'Subject debug info',
-        payload: {
-            id: subjectData._id,
-            name: subjectData.name,
-            fullName: subjectData.fullName,
-            description: subjectData.description,
-            icon: subjectData.icon,
-            isActive: subjectData.isActive,
-            createdAt: subjectData.createdAt,
-            updatedAt: subjectData.updatedAt
-        }
-    });
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ success: false, message: 'Debug endpoint disabled in production' });
+  }
+
+  const subjectData = await Subject.findById(req.params.id);
+  if (!subjectData) {
+    return res.status(404).json({ success: false, message: 'Subject not found' });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Subject debug info',
+    payload: {
+      id: subjectData._id,
+      name: subjectData.name,
+      fullName: subjectData.fullName,
+      description: subjectData.description,
+      icon: subjectData.icon,
+      isActive: subjectData.isActive,
+      createdAt: subjectData.createdAt,
+      updatedAt: subjectData.updatedAt,
+    },
+  });
 }));
 
-// Generate AI explanations
+// ✅ Generate AI explanations
 geminiApp.post('/generate-explanations', expressAsyncHandler(async (req, res) => {
-    const { questions, userAnswers } = req.body;
-    
-    if (!questions || !userAnswers || questions.length !== userAnswers.length) {
-        return res.status(400).send({ message: 'Questions and userAnswers must match in length' });
-    }
-    
+  const { questions, userAnswers } = req.body;
+
+  if (!questions || !userAnswers || questions.length !== userAnswers.length) {
+    return res.status(400).json({ success: false, message: 'Questions and userAnswers must match in length' });
+  }
+
+  try {
     const explanations = await geminiService.generateExplanations(questions, userAnswers);
-    
-    res.status(200).send({
-        message: 'AI explanations generated',
-        payload: explanations
-    });
+    res.status(200).json({ success: true, message: 'AI explanations generated', payload: explanations });
+  } catch (error) {
+    console.error('Error generating explanations:', error);
+    res.status(500).json({ success: false, message: 'Error generating explanations', error: error.message });
+  }
 }));
 
-// Generate personalized feedback
+// ✅ Generate personalized feedback
 geminiApp.post('/generate-feedback', expressAsyncHandler(async (req, res) => {
-    const { quizResult, subject } = req.body;
-    
-    if (!quizResult || !subject) {
-        return res.status(400).send({ message: 'Quiz result and subject are required' });
-    }
-    
+  const { quizResult, subject } = req.body;
+
+  if (!quizResult || !subject) {
+    return res.status(400).json({ success: false, message: 'Quiz result and subject are required' });
+  }
+
+  try {
     const feedback = await geminiService.generateFeedback(quizResult, subject);
-    
-    res.status(200).send({
-        message: 'AI feedback generated',
-        payload: feedback
-    });
+    res.status(200).json({ success: true, message: 'AI feedback generated', payload: feedback });
+  } catch (error) {
+    console.error('Error generating feedback:', error);
+    res.status(500).json({ success: false, message: 'Error generating feedback', error: error.message });
+  }
 }));
 
-// Check database subjects
+// ✅ Check database subjects
 geminiApp.get('/check-database', expressAsyncHandler(async (req, res) => {
+  try {
     const subjects = await Subject.find({});
-    res.json(subjects);
+    res.status(200).json({ success: true, message: 'Subjects fetched successfully', payload: subjects });
+  } catch (error) {
+    console.error('Database check failed:', error);
+    res.status(500).json({ success: false, message: 'Database check failed', error: error.message });
+  }
 }));
 
 module.exports = geminiApp;
