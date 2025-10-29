@@ -27,12 +27,8 @@ const benefits = [
 ];
 
 const branches = [
-  { value: 'CSE', label: 'Computer Science' },
-  { value: 'ECE', label: 'Electronics' },
-  { value: 'EEE', label: 'Electrical' },
-  { value: 'MECH', label: 'Mechanical' },
-  { value: 'CIVIL', label: 'Civil' },
-  { value: 'IT', label: 'IT' }
+  { value: 'CSE', label: 'Computer Science (CSE)' },
+  { value: 'IT', label: 'Information Technology (IT)' }
 ];
 
 const years = [
@@ -104,7 +100,7 @@ function Register() {
               </div>
               <h1 className="text-3xl font-bold text-white">QuizMaster</h1>
             </div>
-            <p className="text-orange-100 text-sm">Join thousands of B.Tech students</p>
+            <p className="text-orange-100 text-sm">Join thousands of CSE/IT students</p>
           </motion.div>
 
           <motion.div
